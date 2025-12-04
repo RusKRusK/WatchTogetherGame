@@ -1,16 +1,54 @@
-# Fresh project
+# Watch Toguesser
+こちらから遊べます → https://watch-toguesser.deno.dev
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+## What is Watch Toguesser?
+Watch Toguesser（ウォッチ・トゥゲッサー）は、YouTube動画を使ったリアルタイム・心理戦パーティーゲームです。
+親が選びそうな動画を推測して選び、みんなで同時視聴。
+「この動画を選んだのは誰だ？」という読み合いと、動画鑑賞を同時に楽しめます。
 
-### Usage
+## 📖 ルールと遊び方
 
-Make sure to install Deno: https://deno.land/manual/getting_started/installation
+このゲームは**4人以上**でのプレイを推奨します。
 
-Then start the project:
+### ゲームの流れ
 
-```
-deno task start
-```
+1.  **ルーム作成・参加**: ホストがルームを作成し、URLを共有してメンバーを集めます。
+2.  **親の決定**: 順番に「親」プレイヤーが回ってきます。
+3.  **動画選択フェーズ**:
+      * **親**: 自分の好きな動画（またはテーマに沿った動画）を選択します。
+      * **子**: 「親が選びそうな動画」を予想して、親になりすますように動画を選択します。
+4.  **視聴フェーズ**:
+      * 全員が選択した動画がランダムな順番で再生されます（YouTube同時再生）。
+5.  **予想フェーズ**:
+      * **子**: 再生された動画の中から「どれが親の選んだ動画か」を予想して投票します。
+      * **親**: 自分以外の動画について「誰がどの動画を選んだか」を予想して紐付けます。
+6.  **結果発表・得点計算**:
+      * 正解に応じてポイントが加算されます。
+7.  **交代**: 全員が親を行うまで繰り返し、最終的な合計スコアを競います。
 
-This will watch the project directory and restart as necessary.
+### 得点システム
+
+  * **全員共通**: 自分の動画を選んだ人数 × **10pt** を獲得。
+  * **子（Guessers）**: 親の動画を的中させると **10pt** 獲得。
+  * **親（Target）**:
+      * **【例外】**: もし全員に当てられてしまった場合（バレバレだった場合）、親の得点は **0pt** となります。
+      * **ボーナス**: 子が選んだ動画を誰が出したか正しく紐付けできると、1人につき **5pt** 獲得。
+
+## 機能一覧
+
+  * **リアルタイム同期**: WebSocketを使用し、YouTube動画の再生・停止・シークを全員で同期します。
+  * **ルーム管理**: URL共有だけで簡単に友人を招待可能。
+  * **ゲームカスタマイズ**:
+      * **再生時間上限**: 1分、3分、5分など、サクサク進めるための制限設定。
+      * **テーマ設定**: 「懐メロ」「夏に聴きたい曲」など、その回ごとのテーマをホストが設定可能。
+      * **再生範囲指定**: 長い動画でも、一番見せたい「サビ」などの部分だけを切り取って指定可能。
+
+## 🛠 技術スタック
+
+Deno Deployでの動作を前提に、以下のモダンな技術で構築されています。
+
+  * **Runtime**: [Deno](https://deno.com/)
+  * **Framework**: [Fresh](https://fresh.deno.dev/) (The next-gen web framework)
+  * **Language**: TypeScript
+  * **UI/Styling**: Preact, Tailwind CSS
+  * **Infrastructure**: Deno Deploy
