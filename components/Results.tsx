@@ -92,9 +92,10 @@ export function Results({ room, isHost, onNextRound }: ResultsProps) {
               hostGuessForThisChild === v.videoId;
 
             // Votes received
-            const votes = Object.values(room.guesses || {}).filter((gid) =>
-              gid === v.videoId
-            ).length;
+            const votes =
+              Object.values(room.guesses || {}).filter((gid) =>
+                gid === v.videoId
+              ).length;
 
             // Check if host got 0 points due to all correct
             const isHostVideo = player?.id === room.hostId;

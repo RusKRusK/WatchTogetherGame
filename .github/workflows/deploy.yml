@@ -32,5 +32,3 @@ jobs:
           project: "watch-toguesser"
           entrypoint: "main.ts"
           root: "."
-          
-          

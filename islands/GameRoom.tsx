@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { PublicRoom, VideoSubmission } from "../utils/game_state.ts";
 import { VideoSelection } from "../components/VideoSelection.tsx";
 import { VideoPlayer } from "../components/VideoPlayer.tsx";
@@ -371,9 +371,40 @@ function Lobby(
   },
 ) {
   const isHost = room.hostId === playerId;
+  const [localTheme, setLocalTheme] = useState(room.settings.theme);
+  const debounceTimer = useRef<number | null>(null);
+
+  // Sync local theme with room theme for non-host players
+  useEffect(() => {
+    if (!isHost) {
+      setLocalTheme(room.settings.theme);
+    }
+  }, [room.settings.theme, isHost]);
 
   const startGame = () => {
     socket?.send(JSON.stringify({ type: "start_game" }));
+  };
+
+  const handleThemeInput = (e: Event) => {
+    const value = (e.currentTarget as HTMLInputElement).value;
+    setLocalTheme(value);
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      const newSettings = {
+        ...room.settings,
+        theme: value,
+      };
+      socket?.send(
+        JSON.stringify({
+          type: "update_settings",
+          settings: newSettings,
+        }),
+      );
+    }, 300);
   };
 
   return (
@@ -406,19 +437,8 @@ function Lobby(
                 <label class="block text-sm text-gray-400 mb-1">テーマ</label>
                 <input
                   type="text"
-                  value={room.settings.theme}
-                  onInput={(e) => {
-                    const newSettings = {
-                      ...room.settings,
-                      theme: e.currentTarget.value,
-                    };
-                    socket?.send(
-                      JSON.stringify({
-                        type: "update_settings",
-                        settings: newSettings,
-                      }),
-                    );
-                  }}
+                  value={localTheme}
+                  onInput={handleThemeInput}
                   class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2"
                   placeholder="例: 懐かしい曲"
                 />
@@ -444,7 +464,7 @@ function Lobby(
 }
 
 function RoundSettings(
-  { room, isHost, onStart, socket }: {
+  { room, isHost, onStart: _onStart, socket }: {
     room: PublicRoom;
     isHost: boolean;
     onStart: () => void;
@@ -517,6 +537,7 @@ function RoundSettings(
 
         <div class="pt-6">
           <button
+            type="button"
             onClick={handleStart}
             class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg font-bold text-xl transition transform hover:scale-105 shadow-lg"
           >
